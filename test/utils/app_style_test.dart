@@ -1,10 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:evently/utils/app_style.dart';
 import 'package:evently/utils/app_color.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   group('AppStyle Typography Verification', () {
     test('Font family and weights must comply with Figma specifications', () {
