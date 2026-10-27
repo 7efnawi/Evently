@@ -7,6 +7,7 @@ import 'providers/app_theme_provider.dart';
 import 'screens/auth/forget_password_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
+import 'screens/main_layout/main_layout_screen.dart';
 import 'screens/onboarding/onboarding_setup_screen.dart';
 import 'screens/splash/splash_screen.dart';
 import 'utils/app_routes.dart';
@@ -58,8 +59,8 @@ class EventlyApp extends StatelessWidget {
           AppRoutes.login: (_) => const LoginScreen(),
           AppRoutes.register: (_) => const RegisterScreen(),
           AppRoutes.forgetPassword: (_) => const ForgetPasswordScreen(),
-          AppRoutes.mainLayout: (_) =>
-              const Scaffold(body: Center(child: Text('Main Dashboard'))),
+          AppRoutes.mainLayout: (_) => const MainLayoutScreen(),
+
         },
       );
     }
