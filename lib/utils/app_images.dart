@@ -31,4 +31,12 @@ abstract final class AppImages {
   static const String onboarding3 = '$_imagesBase/onboarding_3.svg';
   static const String onboarding4 = '$_imagesBase/onboarding_4.svg';
   static const String changeSetting = '$_imagesBase/change_setting.svg';
+
+  // Raster Event Banners & Images
+  static const String birthdayBanner = '$_imagesBase/birthday_banner.png';
+  static const String bookClubBanner = '$_imagesBase/book_club_banner.png';
+  static const String meetingBanner = '$_imagesBase/meeting_banner.png';
+  static const String sportBanner = '$_imagesBase/sport_banner.png';
+  static const String userAvatar = '$_imagesBase/user_avatar.png';
+  static const String mapPreview = '$_imagesBase/map_preview.png';
 }
