@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'providers/app_auth_provider.dart';
+import 'providers/app_events_provider.dart';
 import 'providers/app_language_provider.dart';
 import 'providers/app_theme_provider.dart';
 import 'screens/auth/forget_password_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
+import 'screens/event/create_event_screen.dart';
+import 'screens/event/edit_event_screen.dart';
+import 'screens/event/event_details_screen.dart';
 import 'screens/main_layout/main_layout_screen.dart';
 import 'screens/onboarding/onboarding_setup_screen.dart';
 import 'screens/splash/splash_screen.dart';
@@ -21,6 +25,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AppThemeProvider()),
         ChangeNotifierProvider(create: (_) => AppLanguageProvider()),
         ChangeNotifierProvider(create: (_) => AppAuthProvider()),
+        ChangeNotifierProvider(create: (_) => AppEventsProvider()),
       ],
       child: const EventlyApp(),
     ),
@@ -60,7 +65,9 @@ class EventlyApp extends StatelessWidget {
           AppRoutes.register: (_) => const RegisterScreen(),
           AppRoutes.forgetPassword: (_) => const ForgetPasswordScreen(),
           AppRoutes.mainLayout: (_) => const MainLayoutScreen(),
-
+          AppRoutes.createEvent: (_) => const CreateEventScreen(),
+          AppRoutes.eventDetails: (_) => const EventDetailsScreen(),
+          AppRoutes.editEvent: (_) => const EditEventScreen(),
         },
       );
     }
@@ -69,6 +76,7 @@ class EventlyApp extends StatelessWidget {
       Provider.of<AppThemeProvider>(context, listen: false);
       Provider.of<AppLanguageProvider>(context, listen: false);
       Provider.of<AppAuthProvider>(context, listen: false);
+      Provider.of<AppEventsProvider>(context, listen: false);
       return appBuilder(context);
     } catch (_) {
       return MultiProvider(
@@ -76,6 +84,7 @@ class EventlyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => AppThemeProvider()),
           ChangeNotifierProvider(create: (_) => AppLanguageProvider()),
           ChangeNotifierProvider(create: (_) => AppAuthProvider()),
+          ChangeNotifierProvider(create: (_) => AppEventsProvider()),
         ],
         child: Builder(builder: appBuilder),
       );

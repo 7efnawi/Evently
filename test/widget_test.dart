@@ -5,11 +5,15 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:evently/main.dart';
 import 'package:evently/providers/app_auth_provider.dart';
+import 'package:evently/providers/app_events_provider.dart';
 import 'package:evently/providers/app_language_provider.dart';
 import 'package:evently/providers/app_theme_provider.dart';
 import 'package:evently/screens/auth/forget_password_screen.dart';
 import 'package:evently/screens/auth/login_screen.dart';
 import 'package:evently/screens/auth/register_screen.dart';
+import 'package:evently/screens/event/create_event_screen.dart';
+import 'package:evently/screens/event/edit_event_screen.dart';
+import 'package:evently/screens/event/event_details_screen.dart';
 import 'package:evently/screens/main_layout/main_layout_screen.dart';
 import 'package:evently/utils/app_routes.dart';
 
@@ -39,6 +43,7 @@ void main() {
       final themeProvider = AppThemeProvider();
       final languageProvider = AppLanguageProvider();
       final authProvider = AppAuthProvider();
+      final eventsProvider = AppEventsProvider();
 
       await tester.pumpWidget(
         MultiProvider(
@@ -51,6 +56,9 @@ void main() {
             ),
             ChangeNotifierProvider<AppAuthProvider>.value(
               value: authProvider,
+            ),
+            ChangeNotifierProvider<AppEventsProvider>.value(
+              value: eventsProvider,
             ),
           ],
           child: const EventlyApp(),
@@ -73,15 +81,22 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('provides AppAuthProvider in the widget tree', (tester) async {
+    testWidgets('provides AppAuthProvider and AppEventsProvider in widget tree',
+        (tester) async {
       await tester.pumpWidget(const EventlyApp());
 
       final BuildContext navContext =
           tester.element(find.byType(Navigator).first);
       final authProvider =
           Provider.of<AppAuthProvider>(navContext, listen: false);
+      final eventsProvider =
+          Provider.of<AppEventsProvider>(navContext, listen: false);
+
       expect(authProvider, isNotNull);
       expect(authProvider.isAuthenticated, isFalse);
+      expect(eventsProvider, isNotNull);
+      await tester.pump();
+      expect(eventsProvider.events, isNotEmpty);
 
       await tester.pump(const Duration(milliseconds: 2100));
       await tester.pumpAndSettle();
@@ -125,6 +140,30 @@ void main() {
       expect(find.text('Map'), findsOneWidget);
       expect(find.text('Love'), findsOneWidget);
       expect(find.text('Profile'), findsOneWidget);
+    });
+
+    testWidgets(
+        'routes map to CreateEvent, EventDetails, and EditEvent screens',
+        (tester) async {
+      await tester.pumpWidget(const EventlyApp());
+
+      final NavigatorState navigator =
+          tester.state<NavigatorState>(find.byType(Navigator).first);
+
+      // Navigate to CreateEventScreen
+      navigator.pushNamed(AppRoutes.createEvent);
+      await tester.pumpAndSettle();
+      expect(find.byType(CreateEventScreen), findsOneWidget);
+
+      // Navigate to EventDetailsScreen
+      navigator.pushNamed(AppRoutes.eventDetails, arguments: 'seed_event_1');
+      await tester.pumpAndSettle();
+      expect(find.byType(EventDetailsScreen), findsOneWidget);
+
+      // Navigate to EditEventScreen
+      navigator.pushNamed(AppRoutes.editEvent);
+      await tester.pumpAndSettle();
+      expect(find.byType(EditEventScreen), findsOneWidget);
     });
   });
 }

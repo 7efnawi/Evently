@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:evently/providers/app_auth_provider.dart';
+import 'package:evently/providers/app_events_provider.dart';
 import 'package:evently/providers/app_theme_provider.dart';
 import 'package:evently/providers/app_language_provider.dart';
 import 'package:evently/screens/main_layout/main_layout_screen.dart';
@@ -24,6 +25,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AppAuthProvider()),
         ChangeNotifierProvider(create: (_) => AppThemeProvider()),
         ChangeNotifierProvider(create: (_) => AppLanguageProvider()),
+        ChangeNotifierProvider(create: (_) => AppEventsProvider()),
       ],
       child: MaterialApp(
         routes: {
@@ -43,7 +45,6 @@ void main() {
       expect(find.text('Love'), findsOneWidget);
       expect(find.text('Profile'), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.text('Home Screen'), findsOneWidget);
     });
 
     testWidgets('switches to Profile tab when Profile item is tapped', (tester) async {
@@ -70,7 +71,7 @@ void main() {
 
       await tester.tap(find.text('Home'));
       await tester.pumpAndSettle();
-      expect(find.text('Home Screen'), findsOneWidget);
+      expect(find.text('Welcome Back ✨'), findsOneWidget);
     });
 
     testWidgets('tapping Floating Action Button triggers navigation to Create Event', (tester) async {

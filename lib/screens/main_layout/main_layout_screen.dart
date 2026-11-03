@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/app_color.dart';
 import '../../utils/app_routes.dart';
+import '../home/home_screen.dart';
 import '../profile/profile_tab.dart';
 import 'widgets/custom_bottom_nav_bar.dart';
 
@@ -15,7 +16,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _tabs = const [
-    Scaffold(body: Center(child: Text('Home Screen'))),
+    HomeScreen(),
     Scaffold(body: Center(child: Text('Map Screen'))),
     Scaffold(body: Center(child: Text('Favorites Screen'))),
     ProfileTab(),
