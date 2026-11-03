@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../utils/app_images.dart';
 
 enum EventCategory {
@@ -10,6 +12,21 @@ enum EventCategory {
 }
 
 extension EventCategoryExtension on EventCategory {
+  String localizedName(BuildContext context) {
+    switch (this) {
+      case EventCategory.all:
+        return context.l10n.all;
+      case EventCategory.sport:
+        return context.l10n.sport;
+      case EventCategory.birthday:
+        return context.l10n.birthday;
+      case EventCategory.bookClub:
+        return context.l10n.bookClub;
+      case EventCategory.meeting:
+        return context.l10n.meeting;
+    }
+  }
+
   String get displayName {
     switch (this) {
       case EventCategory.all:

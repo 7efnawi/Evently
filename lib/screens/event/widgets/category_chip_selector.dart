@@ -59,7 +59,7 @@ class CategoryChipSelector extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    category.displayName,
+                    category.localizedName(context),
                     style: AppStyle.bold16.copyWith(
                       color: isSelected ? AppColor.white : AppColor.primary,
                     ),

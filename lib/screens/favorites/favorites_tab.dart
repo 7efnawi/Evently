@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_events_provider.dart';
 import '../../utils/app_color.dart';
 import '../../utils/app_images.dart';
@@ -29,12 +30,15 @@ class _FavoritesTabState extends State<FavoritesTab> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final allFavorites = context.watch<AppEventsProvider>().favoriteEvents;
+    final l10n = context.l10n;
 
     final displayedFavorites = _searchQuery.isEmpty
         ? allFavorites
         : allFavorites
             .where((event) =>
-                event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                event.title
+                    .toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ||
                 event.description
                     .toLowerCase()
                     .contains(_searchQuery.toLowerCase()))
@@ -64,7 +68,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
                     color: isDark ? AppColor.white : AppColor.textBaseDark,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Search for Event',
+                    hintText: l10n.searchForEvent,
                     hintStyle:
                         AppStyle.bold14.copyWith(color: AppColor.primary),
                     prefixIcon: SvgPicture.asset(
@@ -102,7 +106,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
                 child: allFavorites.isEmpty
                     ? Center(
                         child: Text(
-                          'No favorite events yet',
+                          l10n.noFavoritesYet,
                           style: AppStyle.medium16.copyWith(
                             color: isDark
                                 ? AppColor.white
@@ -113,7 +117,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
                     : displayedFavorites.isEmpty
                         ? Center(
                             child: Text(
-                              'No events match your search',
+                              l10n.noFavoritesFound,
                               style: AppStyle.medium16.copyWith(
                                 color: isDark
                                     ? AppColor.white

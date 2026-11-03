@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/event_model.dart';
 import '../../providers/app_events_provider.dart';
 import '../../utils/app_color.dart';
@@ -95,12 +96,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor:
           isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
       appBar: AppBar(
-        title: Text('Create Event', style: AppStyle.bold20),
+        title: Text(l10n.createEvent, style: AppStyle.bold20),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.maybePop(context),
@@ -134,14 +136,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Title',
+                  l10n.title,
                   style: AppStyle.medium16.copyWith(
                     color: isDark ? AppColor.white : AppColor.textBaseDark,
                   ),
                 ),
                 const SizedBox(height: 8),
                 CustomTextField(
-                  hint: 'Event Title',
+                  hint: l10n.title,
                   controller: _titleController,
                   prefixIcon: SvgPicture.asset(
                     AppImages.icEditNote,
@@ -162,14 +164,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Description',
+                  l10n.description,
                   style: AppStyle.medium16.copyWith(
                     color: isDark ? AppColor.white : AppColor.textBaseDark,
                   ),
                 ),
                 const SizedBox(height: 8),
                 CustomTextField(
-                  hint: 'Event Description',
+                  hint: l10n.description,
                   controller: _descriptionController,
                   maxLines: 4,
                   validator: (value) {
@@ -193,7 +195,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Event Date',
+                      l10n.eventDate,
                       style: AppStyle.medium16.copyWith(
                         color: isDark ? AppColor.white : AppColor.textBaseDark,
                       ),
@@ -222,7 +224,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Event Time',
+                      l10n.eventTime,
                       style: AppStyle.medium16.copyWith(
                         color: isDark ? AppColor.white : AppColor.textBaseDark,
                       ),
@@ -240,7 +242,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Location',
+                  l10n.location,
                   style: AppStyle.medium16.copyWith(
                     color: isDark ? AppColor.white : AppColor.textBaseDark,
                   ),
@@ -296,7 +298,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
                 const SizedBox(height: 24),
                 CustomElevatedButton(
-                  title: 'Add Event',
+                  title: l10n.addEvent,
                   onPressed: _handleCreateEvent,
                 ),
                 const SizedBox(height: 16),

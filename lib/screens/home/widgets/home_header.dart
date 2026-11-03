@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/event_model.dart';
 import '../../../providers/app_auth_provider.dart';
 import '../../../providers/app_events_provider.dart';
@@ -20,10 +21,12 @@ class HomeHeader extends StatelessWidget {
     final themeProvider = context.watch<AppThemeProvider>();
     final languageProvider = context.watch<AppLanguageProvider>();
     final eventsProvider = context.watch<AppEventsProvider>();
+    final l10n = context.l10n;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(top: 48, left: 16, right: 16, bottom: 16),
+      padding:
+          const EdgeInsets.only(top: 48, left: 16, right: 16, bottom: 16),
       decoration: const BoxDecoration(
         color: AppColor.primary,
         borderRadius: BorderRadius.only(
@@ -41,7 +44,7 @@ class HomeHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Welcome Back ✨',
+                    l10n.welcomeBack,
                     style: AppStyle.regular14.copyWith(color: AppColor.white),
                   ),
                   const SizedBox(height: 4),
@@ -56,12 +59,15 @@ class HomeHeader extends StatelessWidget {
                   IconButton(
                     onPressed: () {
                       themeProvider.changeTheme(
-                        themeProvider.isDark ? ThemeMode.light : ThemeMode.dark,
+                        themeProvider.isDark
+                            ? ThemeMode.light
+                            : ThemeMode.dark,
                       );
                     },
                     icon: SvgPicture.asset(
                       AppImages.icSun,
-                      colorFilter: const ColorFilter.mode(AppColor.white, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(
+                          AppColor.white, BlendMode.srcIn),
                       width: 24,
                       height: 24,
                     ),
@@ -74,14 +80,16 @@ class HomeHeader extends StatelessWidget {
                     },
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppColor.white,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         languageProvider.isEnglish ? 'EN' : 'AR',
-                        style: AppStyle.bold14.copyWith(color: AppColor.primary),
+                        style:
+                            AppStyle.bold14.copyWith(color: AppColor.primary),
                       ),
                     ),
                   ),
@@ -94,13 +102,14 @@ class HomeHeader extends StatelessWidget {
             children: [
               SvgPicture.asset(
                 AppImages.icMapPin,
-                colorFilter: const ColorFilter.mode(AppColor.white, BlendMode.srcIn),
+                colorFilter:
+                    const ColorFilter.mode(AppColor.white, BlendMode.srcIn),
                 width: 20,
                 height: 20,
               ),
               const SizedBox(width: 6),
               Text(
-                'Cairo , Egypt',
+                l10n.cairoEgypt,
                 style: AppStyle.medium14.copyWith(color: AppColor.white),
               ),
             ],
@@ -120,7 +129,8 @@ class HomeHeader extends StatelessWidget {
                   onTap: () => eventsProvider.setCategory(category),
                   borderRadius: BorderRadius.circular(46),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: isSelected ? AppColor.white : Colors.transparent,
                       borderRadius: BorderRadius.circular(46),
@@ -143,9 +153,11 @@ class HomeHeader extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          category.displayName,
+                          category.localizedName(context),
                           style: AppStyle.bold14.copyWith(
-                            color: isSelected ? AppColor.primary : AppColor.white,
+                            color: isSelected
+                                ? AppColor.primary
+                                : AppColor.white,
                           ),
                         ),
                       ],

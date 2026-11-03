@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/event_model.dart';
 import '../../providers/app_events_provider.dart';
 import '../../utils/app_color.dart';
@@ -14,10 +15,13 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final List<EventModel> events = context.watch<AppEventsProvider>().filteredEvents;
+    final List<EventModel> events =
+        context.watch<AppEventsProvider>().filteredEvents;
+    final l10n = context.l10n;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
+      backgroundColor:
+          isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
       body: Column(
         children: [
           const HomeHeader(),
@@ -25,7 +29,7 @@ class HomeScreen extends StatelessWidget {
             child: events.isEmpty
                 ? Center(
                     child: Text(
-                      'No events found',
+                      l10n.noEventsFound,
                       style: AppStyle.medium16.copyWith(
                         color: isDark ? AppColor.white : AppColor.textSecondary,
                       ),

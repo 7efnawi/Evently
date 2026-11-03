@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/event_model.dart';
 import '../../providers/app_events_provider.dart';
 import '../../utils/app_color.dart';
@@ -110,7 +111,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
       imagePath: _selectedCategory.bannerPath,
     );
 
-    final success = await context.read<AppEventsProvider>().updateEvent(updated);
+    final success =
+        await context.read<AppEventsProvider>().updateEvent(updated);
     if (mounted && success) {
       Navigator.maybePop(context);
     }
@@ -126,12 +128,13 @@ class _EditEventScreenState extends State<EditEventScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor:
           isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
       appBar: AppBar(
-        title: Text('Edit Event', style: AppStyle.bold20),
+        title: Text(l10n.editEvent, style: AppStyle.bold20),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.maybePop(context),
@@ -161,19 +164,20 @@ class _EditEventScreenState extends State<EditEventScreen> {
                       setState(() => _selectedCategory = cat),
                 ),
                 const SizedBox(height: 16),
-                Text('Title', style: AppStyle.medium16),
+                Text(l10n.title, style: AppStyle.medium16),
                 const SizedBox(height: 8),
                 CustomTextField(
-                  hint: 'Event Title',
+                  hint: l10n.title,
                   controller: _titleController,
-                  validator: (v) =>
-                      v == null || v.trim().isEmpty ? 'Please enter title' : null,
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? 'Please enter title'
+                      : null,
                 ),
                 const SizedBox(height: 16),
-                Text('Description', style: AppStyle.medium16),
+                Text(l10n.description, style: AppStyle.medium16),
                 const SizedBox(height: 8),
                 CustomTextField(
-                  hint: 'Event Description',
+                  hint: l10n.description,
                   controller: _descriptionController,
                   maxLines: 4,
                   validator: (v) => v == null || v.trim().isEmpty
@@ -183,33 +187,35 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Text('Event Date', style: AppStyle.medium16),
+                    Text(l10n.eventDate, style: AppStyle.medium16),
                     const Spacer(),
                     TextButton(
                       onPressed: _pickDate,
                       child: Text(
                         DateFormat('dd/MM/yyyy').format(_selectedDate),
-                        style: AppStyle.bold16.copyWith(color: AppColor.primary),
+                        style:
+                            AppStyle.bold16.copyWith(color: AppColor.primary),
                       ),
                     ),
                   ],
                 ),
                 Row(
                   children: [
-                    Text('Event Time', style: AppStyle.medium16),
+                    Text(l10n.eventTime, style: AppStyle.medium16),
                     const Spacer(),
                     TextButton(
                       onPressed: _pickTime,
                       child: Text(
                         _selectedTime.format(context),
-                        style: AppStyle.bold16.copyWith(color: AppColor.primary),
+                        style:
+                            AppStyle.bold16.copyWith(color: AppColor.primary),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
                 CustomElevatedButton(
-                  title: 'Update Event',
+                  title: l10n.updateEvent,
                   onPressed: _handleUpdate,
                 ),
                 const SizedBox(height: 16),
