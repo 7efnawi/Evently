@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../utils/app_color.dart';
 import '../../utils/app_routes.dart';
+import '../favorites/favorites_tab.dart';
 import '../home/home_screen.dart';
+import '../map/map_tab.dart';
 import '../profile/profile_tab.dart';
 import 'widgets/custom_bottom_nav_bar.dart';
 
@@ -17,8 +19,8 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   final List<Widget> _tabs = const [
     HomeScreen(),
-    Scaffold(body: Center(child: Text('Map Screen'))),
-    Scaffold(body: Center(child: Text('Favorites Screen'))),
+    MapTab(),
+    FavoritesTab(),
     ProfileTab(),
   ];
 

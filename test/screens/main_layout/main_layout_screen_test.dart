@@ -7,7 +7,9 @@ import 'package:evently/providers/app_auth_provider.dart';
 import 'package:evently/providers/app_events_provider.dart';
 import 'package:evently/providers/app_theme_provider.dart';
 import 'package:evently/providers/app_language_provider.dart';
+import 'package:evently/screens/favorites/favorites_tab.dart';
 import 'package:evently/screens/main_layout/main_layout_screen.dart';
+import 'package:evently/screens/map/map_tab.dart';
 import 'package:evently/screens/profile/profile_tab.dart';
 import 'package:evently/utils/app_routes.dart';
 
@@ -63,11 +65,11 @@ void main() {
 
       await tester.tap(find.text('Map'));
       await tester.pumpAndSettle();
-      expect(find.text('Map Screen'), findsOneWidget);
+      expect(find.byType(MapTab), findsOneWidget);
 
       await tester.tap(find.text('Love'));
       await tester.pumpAndSettle();
-      expect(find.text('Favorites Screen'), findsOneWidget);
+      expect(find.byType(FavoritesTab), findsOneWidget);
 
       await tester.tap(find.text('Home'));
       await tester.pumpAndSettle();
