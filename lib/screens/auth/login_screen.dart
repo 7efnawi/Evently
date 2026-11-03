@@ -157,8 +157,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: _handleLogin,
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
                       l10n.dontHaveAccount,
@@ -198,10 +199,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: 24,
                       ),
                       const SizedBox(width: 12),
-                      Text(
-                        l10n.loginWithGoogle,
-                        style: AppStyle.medium16.copyWith(
-                          color: AppColor.primary,
+                      Flexible(
+                        child: Text(
+                          l10n.loginWithGoogle,
+                          style: AppStyle.medium16.copyWith(
+                            color: AppColor.primary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

@@ -40,20 +40,25 @@ class HomeHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.welcomeBack,
-                    style: AppStyle.regular14.copyWith(color: AppColor.white),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    userName,
-                    style: AppStyle.bold24.copyWith(color: AppColor.white),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.welcomeBack,
+                      style: AppStyle.regular14.copyWith(color: AppColor.white),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      userName,
+                      style: AppStyle.bold24.copyWith(color: AppColor.white),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Row(
                 children: [
                   IconButton(
@@ -108,9 +113,12 @@ class HomeHeader extends StatelessWidget {
                 height: 20,
               ),
               const SizedBox(width: 6),
-              Text(
-                l10n.cairoEgypt,
-                style: AppStyle.medium14.copyWith(color: AppColor.white),
+              Flexible(
+                child: Text(
+                  l10n.cairoEgypt,
+                  style: AppStyle.medium14.copyWith(color: AppColor.white),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
