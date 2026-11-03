@@ -9,6 +9,7 @@ import '../../utils/app_routes.dart';
 import '../../utils/app_style.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/custom_text_field.dart';
+import 'widgets/google_sign_in_bottom_sheet.dart';
 import 'widgets/or_divider_widget.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -50,13 +51,15 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleLogin() async {
-    final authProvider = context.read<AppAuthProvider>();
-    final success = await authProvider.login(
-      'google.user@gmail.com',
-      'google_oauth_pass',
+    final success = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const GoogleSignInBottomSheet(),
     );
+
     if (!mounted) return;
-    if (success) {
+    if (success == true) {
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.mainLayout,
