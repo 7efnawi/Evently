@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_theme_provider.dart';
 import '../../providers/app_language_provider.dart';
 import '../../utils/app_color.dart';
@@ -18,9 +19,11 @@ class OnboardingSetupScreen extends StatelessWidget {
     final themeProvider = context.watch<AppThemeProvider>();
     final languageProvider = context.watch<AppLanguageProvider>();
     final isDark = themeProvider.isDarkMode;
+    final l10n = context.l10n;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
+      backgroundColor:
+          isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -41,21 +44,21 @@ class OnboardingSetupScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Personalize Your Experience',
+                l10n.personalizeExperience,
                 style: AppStyle.bold20.copyWith(
                   color: isDark ? AppColor.white : AppColor.primary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Choose your preferred theme and language to get started with a comfortable, tailored experience that suits your style.',
+                l10n.personalizeSubtitle,
                 style: AppStyle.regular14.copyWith(
                   color: isDark ? AppColor.white : AppColor.textBaseDark,
                 ),
               ),
               const SizedBox(height: 20),
               ToggleSelectorWidget(
-                title: 'Language',
+                title: l10n.language,
                 titleStyle: AppStyle.bold20.copyWith(
                   color: isDark ? AppColor.white : AppColor.primary,
                 ),
@@ -65,24 +68,30 @@ class OnboardingSetupScreen extends StatelessWidget {
                 firstOption: Text(
                   'EN',
                   style: AppStyle.bold14.copyWith(
-                    color: languageProvider.isEnglish ? AppColor.white : AppColor.primary,
+                    color: languageProvider.isEnglish
+                        ? AppColor.white
+                        : AppColor.primary,
                   ),
                 ),
                 secondOption: Text(
                   'عربي',
                   style: AppStyle.bold14.copyWith(
-                    color: !languageProvider.isEnglish ? AppColor.white : AppColor.primary,
+                    color: !languageProvider.isEnglish
+                        ? AppColor.white
+                        : AppColor.primary,
                   ),
                 ),
               ),
               ToggleSelectorWidget(
-                title: 'Theme',
+                title: l10n.theme,
                 titleStyle: AppStyle.bold20.copyWith(
                   color: isDark ? AppColor.white : AppColor.primary,
                 ),
                 isFirstSelected: !isDark,
-                onFirstSelected: () => themeProvider.changeTheme(ThemeMode.light),
-                onSecondSelected: () => themeProvider.changeTheme(ThemeMode.dark),
+                onFirstSelected: () =>
+                    themeProvider.changeTheme(ThemeMode.light),
+                onSecondSelected: () =>
+                    themeProvider.changeTheme(ThemeMode.dark),
                 firstOption: Icon(
                   Icons.wb_sunny_outlined,
                   key: const Key('theme_light_button'),
@@ -98,11 +107,13 @@ class OnboardingSetupScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               CustomElevatedButton(
-                title: "Let's Start",
+                title: l10n.start,
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const OnboardingScreen(),
+                    ),
                   );
                 },
               ),

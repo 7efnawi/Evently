@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../utils/app_color.dart';
 import '../../../utils/app_images.dart';
 import '../../../utils/app_style.dart';
@@ -18,6 +19,7 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final navBarColor = isDark ? AppColor.cardDark : AppColor.primary;
+    final l10n = context.l10n;
 
     return BottomAppBar(
       color: navBarColor,
@@ -32,26 +34,26 @@ class CustomBottomNavBar extends StatelessWidget {
             _buildNavItem(
               index: 0,
               icon: AppImages.icHome,
-              label: 'Home',
+              label: l10n.home,
               isSelected: selectedIndex == 0,
             ),
             _buildNavItem(
               index: 1,
               icon: AppImages.icMapPin,
-              label: 'Map',
+              label: l10n.map,
               isSelected: selectedIndex == 1,
             ),
             const SizedBox(width: 48), // Space for centered FAB notch
             _buildNavItem(
               index: 2,
               icon: AppImages.icHeart,
-              label: 'Love',
+              label: l10n.love,
               isSelected: selectedIndex == 2,
             ),
             _buildNavItem(
               index: 3,
               icon: AppImages.icProfile,
-              label: 'Profile',
+              label: l10n.profile,
               isSelected: selectedIndex == 3,
             ),
           ],
@@ -66,7 +68,8 @@ class CustomBottomNavBar extends StatelessWidget {
     required String label,
     required bool isSelected,
   }) {
-    final color = isSelected ? AppColor.white : AppColor.white.withValues(alpha: 0.65);
+    final color =
+        isSelected ? AppColor.white : AppColor.white.withValues(alpha: 0.65);
 
     return InkWell(
       onTap: () => onTabSelected(index),

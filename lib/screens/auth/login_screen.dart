@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_auth_provider.dart';
 import '../../providers/app_language_provider.dart';
 import '../../utils/app_color.dart';
@@ -80,6 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isLoading = context.watch<AppAuthProvider>().isLoading;
     final languageProvider = context.watch<AppLanguageProvider>();
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor:
@@ -101,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 CustomTextField(
-                  hint: 'E-mail',
+                  hint: l10n.email,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(
@@ -119,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  hint: 'Password',
+                  hint: l10n.password,
                   controller: _passwordController,
                   isPassword: true,
                   prefixIcon: const Icon(
@@ -140,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () =>
                         Navigator.pushNamed(context, AppRoutes.forgetPassword),
                     child: Text(
-                      'Forget Password?',
+                      l10n.forgetPassword,
                       style: AppStyle.bold14.copyWith(
                         color: AppColor.primary,
                         decoration: TextDecoration.underline,
@@ -150,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 CustomElevatedButton(
-                  title: 'Login',
+                  title: l10n.login,
                   isLoading: isLoading,
                   onPressed: _handleLogin,
                 ),
@@ -159,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Don’t Have Account ? ',
+                      l10n.dontHaveAccount,
                       style: AppStyle.medium16.copyWith(
                         color: isDark ? AppColor.white : AppColor.textBaseDark,
                       ),
@@ -168,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onTap: () =>
                           Navigator.pushNamed(context, AppRoutes.register),
                       child: Text(
-                        'Create Account',
+                        l10n.createAccount,
                         style: AppStyle.bold16.copyWith(
                           color: AppColor.primary,
                           decoration: TextDecoration.underline,
@@ -197,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Login With Google',
+                        l10n.loginWithGoogle,
                         style: AppStyle.medium16.copyWith(
                           color: AppColor.primary,
                         ),

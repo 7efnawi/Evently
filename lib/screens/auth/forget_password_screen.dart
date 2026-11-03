@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_auth_provider.dart';
 import '../../utils/app_color.dart';
 import '../../utils/app_images.dart';
@@ -23,8 +24,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AppAuthProvider>();
-    final success =
-        await authProvider.resetPassword(_emailController.text.trim());
+    final success = await authProvider.resetPassword(
+      _emailController.text.trim(),
+    );
 
     if (!mounted) return;
     if (success) {
@@ -47,12 +49,13 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isLoading = context.watch<AppAuthProvider>().isLoading;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor:
           isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
       appBar: AppBar(
-        title: Text('Forget Password', style: AppStyle.bold20),
+        title: Text(l10n.forgetPasswordTitle, style: AppStyle.bold20),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.maybePop(context),
@@ -76,7 +79,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 ),
                 const SizedBox(height: 24),
                 CustomTextField(
-                  hint: 'E-mail',
+                  hint: l10n.email,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(
@@ -94,10 +97,11 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 ),
                 const SizedBox(height: 24),
                 CustomElevatedButton(
-                  title: 'Reset Password',
+                  title: l10n.resetPassword,
                   isLoading: isLoading,
                   onPressed: _handleReset,
                 ),
+                const SizedBox(height: 16),
               ],
             ),
           ),

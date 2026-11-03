@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_auth_provider.dart';
 import '../../providers/app_theme_provider.dart';
 import '../../providers/app_language_provider.dart';
@@ -21,21 +22,26 @@ class ProfileTab extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeProvider = context.watch<AppThemeProvider>();
     final languageProvider = context.watch<AppLanguageProvider>();
+    final l10n = context.l10n;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
+      backgroundColor:
+          isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
       body: Column(
         children: [
           const ProfileHeaderCard(),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ProfileSettingItem(
-                    title: 'Language',
-                    selectedValue: languageProvider.isEnglish ? 'English' : 'العربية',
+                    title: l10n.language,
+                    selectedValue: languageProvider.isEnglish
+                        ? l10n.english
+                        : l10n.arabic,
                     onTap: () {
                       showModalBottomSheet(
                         context: context,
@@ -46,8 +52,9 @@ class ProfileTab extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   ProfileSettingItem(
-                    title: 'Theme',
-                    selectedValue: themeProvider.isDark ? 'Dark' : 'Light',
+                    title: l10n.theme,
+                    selectedValue:
+                        themeProvider.isDark ? l10n.dark : l10n.light,
                     onTap: () {
                       showModalBottomSheet(
                         context: context,
@@ -74,21 +81,24 @@ class ProfileTab extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 16),
                       elevation: 0,
                     ),
                     child: Row(
                       children: [
                         SvgPicture.asset(
                           AppImages.icExit,
-                          colorFilter: const ColorFilter.mode(AppColor.white, BlendMode.srcIn),
+                          colorFilter: const ColorFilter.mode(
+                              AppColor.white, BlendMode.srcIn),
                           width: 24,
                           height: 24,
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'Logout',
-                          style: AppStyle.bold20.copyWith(color: AppColor.white),
+                          l10n.logout,
+                          style:
+                              AppStyle.bold20.copyWith(color: AppColor.white),
                         ),
                       ],
                     ),

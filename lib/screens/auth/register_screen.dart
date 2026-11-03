@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_auth_provider.dart';
 import '../../utils/app_color.dart';
 import '../../utils/app_routes.dart';
@@ -61,12 +62,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isLoading = context.watch<AppAuthProvider>().isLoading;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor:
           isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
       appBar: AppBar(
-        title: Text('Register', style: AppStyle.bold20),
+        title: Text(l10n.register, style: AppStyle.bold20),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.maybePop(context),
@@ -85,7 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
                 CustomTextField(
-                  hint: 'Name',
+                  hint: l10n.name,
                   controller: _nameController,
                   prefixIcon: const Icon(
                     Icons.person_outline,
@@ -100,7 +102,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  hint: 'E-mail',
+                  hint: l10n.email,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(
@@ -118,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  hint: 'Password',
+                  hint: l10n.password,
                   controller: _passwordController,
                   isPassword: true,
                   prefixIcon: const Icon(
@@ -134,7 +136,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  hint: 'Re Password',
+                  hint: l10n.rePassword,
                   controller: _rePasswordController,
                   isPassword: true,
                   prefixIcon: const Icon(
@@ -150,7 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
                 CustomElevatedButton(
-                  title: 'Create Account',
+                  title: l10n.createAccount,
                   isLoading: isLoading,
                   onPressed: _handleRegister,
                 ),
@@ -159,7 +161,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already Have Account ? ',
+                      l10n.alreadyHaveAccount,
                       style: AppStyle.medium16.copyWith(
                         color: isDark ? AppColor.white : AppColor.textBaseDark,
                       ),
@@ -167,7 +169,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     GestureDetector(
                       onTap: () => Navigator.maybePop(context),
                       child: Text(
-                        'Login',
+                        l10n.login,
                         style: AppStyle.bold16.copyWith(
                           color: AppColor.primary,
                           decoration: TextDecoration.underline,

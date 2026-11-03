@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/app_theme_provider.dart';
 import '../../../utils/app_color.dart';
 import '../../../utils/app_style.dart';
@@ -12,6 +13,7 @@ class ThemeBottomSheet extends StatelessWidget {
     final themeProvider = context.watch<AppThemeProvider>();
     final isDarkSelected = themeProvider.isDark;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -24,7 +26,7 @@ class ThemeBottomSheet extends StatelessWidget {
         children: [
           _buildItem(
             context: context,
-            title: 'Light',
+            title: l10n.light,
             isSelected: !isDarkSelected,
             onTap: () {
               context.read<AppThemeProvider>().changeTheme(ThemeMode.light);
@@ -34,7 +36,7 @@ class ThemeBottomSheet extends StatelessWidget {
           const SizedBox(height: 16),
           _buildItem(
             context: context,
-            title: 'Dark',
+            title: l10n.dark,
             isSelected: isDarkSelected,
             onTap: () {
               context.read<AppThemeProvider>().changeTheme(ThemeMode.dark);
