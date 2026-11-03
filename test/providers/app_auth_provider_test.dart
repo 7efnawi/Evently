@@ -49,5 +49,24 @@ void main() {
       expect(provider.currentUser, isNull);
       expect(provider.isAuthenticated, isFalse);
     });
+
+    test('signInWithGoogle registers new user, persists to storage, and authenticates', () async {
+      final provider = AppAuthProvider();
+      final success = await provider.signInWithGoogle(
+        name: 'Karim Ahmed',
+        email: 'karim.ahmed@gmail.com',
+      );
+
+      expect(success, isTrue);
+      expect(provider.isAuthenticated, isTrue);
+      expect(provider.currentUser?.name, 'Karim Ahmed');
+      expect(provider.currentUser?.email, 'karim.ahmed@gmail.com');
+
+      // Verify persistence
+      final providerReloaded = AppAuthProvider();
+      await Future.delayed(const Duration(milliseconds: 50));
+      expect(providerReloaded.currentUser?.email, 'karim.ahmed@gmail.com');
+      expect(providerReloaded.registeredUsers.any((u) => u.email == 'karim.ahmed@gmail.com'), isTrue);
+    });
   });
 }
