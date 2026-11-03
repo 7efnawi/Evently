@@ -143,7 +143,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
                 const SizedBox(height: 8),
                 CustomTextField(
-                  hint: l10n.title,
+                  hint: 'Event Title',
                   controller: _titleController,
                   prefixIcon: SvgPicture.asset(
                     AppImages.icEditNote,
@@ -171,7 +171,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
                 const SizedBox(height: 8),
                 CustomTextField(
-                  hint: l10n.description,
+                  hint: 'Event Description',
                   controller: _descriptionController,
                   maxLines: 4,
                   validator: (value) {
