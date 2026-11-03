@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'l10n/app_localizations.dart';
 import 'providers/app_auth_provider.dart';
 import 'providers/app_events_provider.dart';
 import 'providers/app_language_provider.dart';
@@ -53,6 +54,7 @@ class EventlyApp extends StatelessWidget {
           Locale('ar'),
         ],
         localizationsDelegates: const [
+          AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
