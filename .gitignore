@@ -51,3 +51,8 @@ PROJECT.md
 PROJECT_LOG.md
 HANDOFF.md
 docs/
+.agents/
+.claude/
+.factory/
+skills-lock.json
+
