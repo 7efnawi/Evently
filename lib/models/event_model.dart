@@ -122,7 +122,35 @@ class EventModel extends Equatable {
     );
   }
 
+  static DateTime _parseDateTime(dynamic val) {
+    if (val == null) return DateTime.now();
+    if (val is DateTime) return val;
+    if (val is String) {
+      return DateTime.tryParse(val) ?? DateTime.now();
+    }
+    try {
+      final dynamic toDate = (val as dynamic).toDate;
+      if (toDate != null) {
+        return (toDate() as DateTime);
+      }
+    } catch (_) {}
+    return DateTime.now();
+  }
+
   Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'category': category.name,
+      'dateTime': dateTime.toIso8601String(),
+      'location': location,
+      'imagePath': imagePath,
+      'isFavorite': isFavorite,
+    };
+  }
+
+  Map<String, dynamic> toFirestoreMap() {
     return {
       'id': id,
       'title': title,
@@ -141,7 +169,7 @@ class EventModel extends Equatable {
       title: map['title'] as String? ?? '',
       description: map['description'] as String? ?? '',
       category: EventCategoryExtension.fromString(map['category'] as String? ?? 'sport'),
-      dateTime: DateTime.tryParse(map['dateTime'] as String? ?? '') ?? DateTime.now(),
+      dateTime: _parseDateTime(map['dateTime']),
       location: map['location'] as String? ?? 'Cairo , Egypt',
       imagePath: map['imagePath'] as String? ?? AppImages.sportBanner,
       isFavorite: map['isFavorite'] as bool? ?? false,
