@@ -17,6 +17,20 @@
 
 ## 📝 Changelog (سجل الإنجاز التفصيلي)
 
+### [2026-11-18] — V2 Phase 4: Offline-First Synchronization & Optimistic UI Complete
+- **ما تم إنجازه:**
+  1. إنشاء برانش `feature/offline-sync`.
+  2. إضافة حزمة `connectivity_plus: ^6.1.0` إلى `pubspec.yaml` لرصد حالة اتصال الشبكة في الوقت الحقيقي.
+  3. بناء خدمة `ConnectivityService` (`lib/core/services/connectivity_service.dart`) مع بث تفاعلي للاتصال `onConnectivityChanged` ودعم كامل للحقن والاختبارات الآلية.
+  4. بناء خدمة طابور العمليات المؤجلة المعزولة `PendingSyncQueue` (`lib/core/services/pending_sync_queue.dart`) لحفظ وتخزين عمليات الإنشاء والتعديل والحذف محلياً في `SharedPreferences` أثناء انقطاع الإنترنت.
+  5. ترقية `AppEventsProvider` بدعم الـ Optimistic UI: تحديث الواجهة والتخزين المحلي فوراً بدون أي تأخير للمستخدم، مع الجدولة في طابور `PendingSyncQueue`، وتصريف الطابور تلقائياً فور عودة الاتصال (`auto-sync on reconnect`).
+  6. بناء ودجت شريط التنبيه الشبكي `OfflineBannerWidget` (`lib/widgets/offline_banner_widget.dart`) ودمجها في أعلى شاشة `MainLayoutScreen` لإعلام المستخدم بوضوح عند فقدان الاتصال.
+  7. تفعيل إعدادات الكاش غير المحدود واستمرارية بيانات Firestore محلياً (`persistenceEnabled: true`, `cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED`) في `lib/main.dart`.
+  8. **بوابات الجودة (Quality Gates):**
+     - اجتياز **136 اختباراً آلياً بنجاح 100%** (`136 passed, 0 failed`).
+     - فحص الكود `dart analyze` ⬅️ **`No issues found!`** (صفر أخطاء، صفر تحذيرات).
+     - دمج الفرع في `main` ورفعه إلى GitHub بنجاح.
+
 ### [2026-11-18] — V2 Phase 3: Firestore Cloud Data Integration Complete
 - **ما تم إنجازه:**
   1. إنشاء برانش `feature/firestore-events`.
