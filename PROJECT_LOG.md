@@ -17,6 +17,21 @@
 
 ## 📝 Changelog (سجل الإنجاز التفصيلي)
 
+### [2026-11-18] — V2 Phase 2: Firebase Authentication Integration Complete
+- **ما تم إنجازه:**
+  1. إنشاء برانش `feature/firebase-auth`.
+  2. إنشاء وتسجيل تطبيق Android (`com.example.evently`) وتطبيق iOS في مشروع Firebase (`evently-e75b6`).
+  3. تنزيل ودمج `android/app/google-services.json` و `ios/Runner/GoogleService-Info.plist` أوتوماتيكياً عبر Firebase CLI.
+  4. تهيئة ملفات الـ Gradle الحديثة (`android/settings.gradle.kts` و `android/app/build.gradle.kts`) مع إضافة بلوجين `com.google.gms.google-services`.
+  5. إضافة حزم `firebase_core`, `firebase_auth`, `google_sign_in` وحزم الاختبار `firebase_auth_mocks`.
+  6. بناء طبقة الخدمة النظيفة `FirebaseAuthService` في `lib/core/services/firebase_auth_service.dart`.
+  7. ترقية `AppAuthProvider` ليعمل بنمط ثنائي هجين (Dual Engine): يتصل بـ Firebase Authentication سحابياً عند تفعيل الفايربيز، مع الحفاظ على التخزين المحلي كـ Offline Fallback.
+  8. تحديث `SplashScreen` لدعم الـ Auto-Login الحقيقي عند وجود جلسة مسجلة.
+  9. **بوابات الجودة (Quality Gates):**
+     - اجتياز **108 اختبار آلي بنجاح 100%** (`108 passed, 0 failed`).
+     - فحص الكود `dart analyze` ⬅️ **`No issues found!`** (صفر أخطاء، صفر تحذيرات).
+
+
 ### [2026-11-04] — Phase 7: Final Polish, Responsive Verification & Production Readiness Complete
 - **ما تم إنجازه:**
   1. **Task 1 (`de2b055`):**

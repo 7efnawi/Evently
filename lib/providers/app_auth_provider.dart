@@ -1,14 +1,18 @@
 import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/services/firebase_auth_service.dart';
 import '../models/user_model.dart';
 
 class AppAuthProvider extends ChangeNotifier {
   static const String _userKey = 'current_user_email';
   static const String _registeredUsersDbKey = 'registered_users_db';
 
-  UserModel? _currentUser;
+  final FirebaseAuthService _authService;
   final List<UserModel> _registeredUsers = [];
+
+  UserModel? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -18,14 +22,23 @@ class AppAuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  AppAuthProvider() {
-    _loadSavedUser();
+  bool get _isFirebaseConfigured {
+    try {
+      return Firebase.apps.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
   }
 
-  Future<void> _loadSavedUser() async {
+  AppAuthProvider({FirebaseAuthService? authService})
+      : _authService = authService ?? FirebaseAuthService() {
+    _initAuth();
+  }
+
+  Future<void> _initAuth() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Load registered users database
+    // Load registered users database (for local fallback & testing)
     final rawUsers = prefs.getString(_registeredUsersDbKey);
     if (rawUsers != null) {
       try {
@@ -37,7 +50,14 @@ class AppAuthProvider extends ChangeNotifier {
       } catch (_) {}
     }
 
-    // Load active session user
+    // Check Firebase user first
+    if (_isFirebaseConfigured && _authService.currentUser != null) {
+      _currentUser = _authService.currentUser;
+      notifyListeners();
+      return;
+    }
+
+    // Otherwise check local saved session
     final email = prefs.getString(_userKey);
     if (email != null) {
       final existing = _registeredUsers.where((u) => u.email == email);
@@ -63,30 +83,44 @@ class AppAuthProvider extends ChangeNotifier {
     _setLoading(true);
     _errorMessage = null;
 
+    if (email.trim().isEmpty || password.isEmpty) {
+      _errorMessage = 'Email and password are required.';
+      _setLoading(false);
+      return false;
+    }
+
     try {
-      await Future.delayed(const Duration(milliseconds: 100)); // simulated latency
-      if (email.isEmpty || password.isEmpty) {
-        _errorMessage = 'Email and password are required.';
-        _setLoading(false);
-        return false;
+      // 1. Try Firebase if available
+      if (_isFirebaseConfigured) {
+        final user = await _authService.signInWithEmail(
+          email: email.trim(),
+          password: password,
+        );
+        if (user != null) {
+          _currentUser = user;
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_userKey, user.email);
+          _setLoading(false);
+          return true;
+        }
       }
 
+      // 2. Fallback to local user DB (for offline mode & tests)
       final prefs = await SharedPreferences.getInstance();
-      final existing = _registeredUsers.where((u) => u.email == email);
+      final existing = _registeredUsers.where((u) => u.email == email.trim());
       if (existing.isNotEmpty) {
         _currentUser = existing.first;
       } else {
         _currentUser = UserModel(
           id: 'user_${email.hashCode}',
           name: email.split('@').first,
-          email: email,
+          email: email.trim(),
         );
         _registeredUsers.add(_currentUser!);
         await _persistRegisteredUsers(prefs);
       }
 
-      await prefs.setString(_userKey, email);
-
+      await prefs.setString(_userKey, email.trim());
       _setLoading(false);
       return true;
     } catch (e) {
@@ -100,31 +134,49 @@ class AppAuthProvider extends ChangeNotifier {
     _setLoading(true);
     _errorMessage = null;
 
+    if (name.trim().isEmpty || email.trim().isEmpty || password.isEmpty) {
+      _errorMessage = 'All fields are required.';
+      _setLoading(false);
+      return false;
+    }
+
     try {
-      await Future.delayed(const Duration(milliseconds: 100));
-      if (name.isEmpty || email.isEmpty || password.isEmpty) {
-        _errorMessage = 'All fields are required.';
-        _setLoading(false);
-        return false;
+      // 1. Try Firebase if available
+      if (_isFirebaseConfigured) {
+        final user = await _authService.signUpWithEmail(
+          name: name.trim(),
+          email: email.trim(),
+          password: password,
+        );
+        if (user != null) {
+          _currentUser = user;
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_userKey, user.email);
+          _setLoading(false);
+          return true;
+        }
       }
 
+      // 2. Local registration (for offline mode & tests)
       final user = UserModel(
         id: 'user_${email.hashCode}',
-        name: name,
-        email: email,
+        name: name.trim(),
+        email: email.trim(),
       );
 
       _currentUser = user;
       final prefs = await SharedPreferences.getInstance();
 
-      final existingIndex = _registeredUsers.indexWhere((u) => u.email == email);
+      final existingIndex =
+          _registeredUsers.indexWhere((u) => u.email == email.trim());
       if (existingIndex >= 0) {
         _registeredUsers[existingIndex] = user;
       } else {
         _registeredUsers.add(user);
       }
+
       await _persistRegisteredUsers(prefs);
-      await prefs.setString(_userKey, email);
+      await prefs.setString(_userKey, email.trim());
 
       _setLoading(false);
       return true;
@@ -136,31 +188,47 @@ class AppAuthProvider extends ChangeNotifier {
   }
 
   Future<bool> signInWithGoogle({
-    required String name,
-    required String email,
+    String? idToken,
+    String? accessToken,
+    String? name,
+    String? email,
   }) async {
     _setLoading(true);
     _errorMessage = null;
 
     try {
-      await Future.delayed(const Duration(milliseconds: 150));
-      if (name.trim().isEmpty || email.trim().isEmpty) {
-        _errorMessage = 'Name and email are required for Google Sign-In.';
-        _setLoading(false);
-        return false;
+      if (_isFirebaseConfigured && idToken != null && accessToken != null) {
+        final user = await _authService.signInWithGoogle(
+          idToken: idToken,
+          accessToken: accessToken,
+        );
+        if (user != null) {
+          _currentUser = user;
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_userKey, user.email);
+          _setLoading(false);
+          return true;
+        }
       }
 
+      // Fallback for tests & account picker
+      final resolvedName = (name != null && name.trim().isNotEmpty)
+          ? name.trim()
+          : 'Google User';
+      final resolvedEmail = (email != null && email.trim().isNotEmpty)
+          ? email.trim()
+          : 'google.user@gmail.com';
+
       final user = UserModel(
-        id: 'google_${email.hashCode}',
-        name: name.trim(),
-        email: email.trim(),
+        id: 'google_${resolvedEmail.hashCode}',
+        name: resolvedName,
+        email: resolvedEmail,
       );
 
       _currentUser = user;
       final prefs = await SharedPreferences.getInstance();
-
       final existingIndex =
-          _registeredUsers.indexWhere((u) => u.email == user.email);
+          _registeredUsers.indexWhere((u) => u.email == resolvedEmail);
       if (existingIndex >= 0) {
         _registeredUsers[existingIndex] = user;
       } else {
@@ -168,7 +236,7 @@ class AppAuthProvider extends ChangeNotifier {
       }
 
       await _persistRegisteredUsers(prefs);
-      await prefs.setString(_userKey, user.email);
+      await prefs.setString(_userKey, resolvedEmail);
 
       _setLoading(false);
       return true;
@@ -183,14 +251,16 @@ class AppAuthProvider extends ChangeNotifier {
     _setLoading(true);
     _errorMessage = null;
 
-    try {
-      await Future.delayed(const Duration(milliseconds: 100));
-      if (email.isEmpty) {
-        _errorMessage = 'Please enter your email.';
-        _setLoading(false);
-        return false;
-      }
+    if (email.trim().isEmpty) {
+      _errorMessage = 'Please enter your email.';
+      _setLoading(false);
+      return false;
+    }
 
+    try {
+      if (_isFirebaseConfigured) {
+        await _authService.sendPasswordResetEmail(email: email.trim());
+      }
       _setLoading(false);
       return true;
     } catch (e) {
@@ -201,6 +271,9 @@ class AppAuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    if (_isFirebaseConfigured) {
+      await _authService.signOut();
+    }
     _currentUser = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userKey);

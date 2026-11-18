@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../providers/app_auth_provider.dart';
 import '../../utils/app_color.dart';
 import '../../utils/app_style.dart';
 import '../../utils/app_routes.dart';
@@ -41,6 +43,20 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
     if (isFirstTime) {
       Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+      return;
+    }
+
+    bool isAuthenticated = false;
+    try {
+      final authProvider = Provider.of<AppAuthProvider>(context, listen: false);
+      isAuthenticated = authProvider.isAuthenticated;
+    } catch (_) {
+      // If Provider is not mounted in an isolated widget test
+    }
+
+    if (!mounted) return;
+    if (isAuthenticated) {
+      Navigator.pushReplacementNamed(context, AppRoutes.mainLayout);
     } else {
       Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
