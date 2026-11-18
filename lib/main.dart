@@ -30,7 +30,14 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AppThemeProvider()),
         ChangeNotifierProvider(create: (_) => AppLanguageProvider()),
         ChangeNotifierProvider(create: (_) => AppAuthProvider()),
-        ChangeNotifierProvider(create: (_) => AppEventsProvider()),
+        ChangeNotifierProxyProvider<AppAuthProvider, AppEventsProvider>(
+          create: (_) => AppEventsProvider(),
+          update: (_, auth, events) {
+            final provider = events ?? AppEventsProvider();
+            provider.updateUid(auth.currentUser?.id);
+            return provider;
+          },
+        ),
       ],
       child: const EventlyApp(),
     ),
@@ -90,7 +97,14 @@ class EventlyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => AppThemeProvider()),
           ChangeNotifierProvider(create: (_) => AppLanguageProvider()),
           ChangeNotifierProvider(create: (_) => AppAuthProvider()),
-          ChangeNotifierProvider(create: (_) => AppEventsProvider()),
+          ChangeNotifierProxyProvider<AppAuthProvider, AppEventsProvider>(
+            create: (_) => AppEventsProvider(),
+            update: (_, auth, events) {
+              final provider = events ?? AppEventsProvider();
+              provider.updateUid(auth.currentUser?.id);
+              return provider;
+            },
+          ),
         ],
         child: Builder(builder: appBuilder),
       );
