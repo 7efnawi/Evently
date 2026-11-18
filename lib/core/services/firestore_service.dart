@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/event_model.dart';
 
 class FirestoreService {
-  final FirebaseFirestore _firestore;
+  FirebaseFirestore? _customFirestore;
 
   FirestoreService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+      : _customFirestore = firestore;
+
+  FirebaseFirestore get _firestore => _customFirestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _userEventsRef(String uid) {
     return _firestore.collection('users').doc(uid).collection('events');
