@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/app_color.dart';
 import '../../utils/app_routes.dart';
+import '../../widgets/offline_banner_widget.dart';
 import '../favorites/favorites_tab.dart';
 import '../home/home_screen.dart';
 import '../map/map_tab.dart';
@@ -27,7 +28,15 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _tabs[_currentIndex],
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            const OfflineBannerWidget(),
+            Expanded(child: _tabs[_currentIndex]),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, AppRoutes.createEvent);
