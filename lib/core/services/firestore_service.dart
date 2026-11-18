@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/event_model.dart';
 
 class FirestoreService {
-  FirebaseFirestore? _customFirestore;
+  final FirebaseFirestore? _customFirestore;
 
   FirestoreService({FirebaseFirestore? firestore})
       : _customFirestore = firestore;
