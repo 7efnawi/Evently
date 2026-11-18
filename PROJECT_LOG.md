@@ -17,6 +17,20 @@
 
 ## 📝 Changelog (سجل الإنجاز التفصيلي)
 
+### [2026-11-18] — V2 Phase 3: Firestore Cloud Data Integration Complete
+- **ما تم إنجازه:**
+  1. إنشاء برانش `feature/firestore-events`.
+  2. إضافة حزم `cloud_firestore: ^5.0.0` وحزمة الاختبار `fake_cloud_firestore: ^3.0.0` إلى `pubspec.yaml`.
+  3. تحديث نموذج البيانات `EventModel` (`lib/models/event_model.dart`) ليدعم تحويل وقراءة كل من `Timestamp` و ISO-8601 strings بدقة ومرونة مع الحفاظ على نقاء طبقة الـ Domain.
+  4. بناء خدمة `FirestoreService` (`lib/core/services/firestore_service.dart`) لتنفيذ كافة عمليات الـ CRUD والـ Real-time Streams والـ Initial Seeding في مسار السحاب المنعزل: `users/{uid}/events/{eventId}`.
+  5. صياغة قواعد أمان Firestore الاحترافية وتدقيقها عبر الوكيل المتخصص `firestore-rules-author` في ملف [`firestore.rules`](file:///d:/NCT/NCT-4/Mobile%20Programming%20II/Lab/evently/firestore.rules) لمنع الوصول غير المصرح به وضمان سلامة أحجام وأنواع الحقول.
+  6. ترقية `AppEventsProvider` إلى النمط الهجين المزدوج (Dual-Engine) مع الحفظ والمزامنة السحابية المباشرة عند وجود مستخدم مسجل، والرجوع التلقائي للـ Local Storage عند عدم التوفر.
+  7. ربط وتوصيل `AppEventsProvider` مع `AppAuthProvider` عبر `ChangeNotifierProxyProvider` في `lib/main.dart` لتحديث الـ events ديناميكياً مع تسجيل الدخول والخروج.
+  8. **بوابات الجودة (Quality Gates):**
+     - اجتياز **123 اختبار آلي بنجاح 100%** (`123 passed, 0 failed`).
+     - فحص الكود `dart analyze` ⬅️ **`No issues found!`** (صفر أخطاء، صفر تحذيرات).
+     - دمج الفرع في `main` ورفعه إلى GitHub بنجاح (Commit: `dc74837`).
+
 ### [2026-11-18] — V2 Phase 2: Firebase Authentication Integration Complete
 - **ما تم إنجازه:**
   1. إنشاء برانش `feature/firebase-auth`.
