@@ -1,5 +1,7 @@
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:evently/core/services/firestore_service.dart';
 import 'package:evently/models/event_model.dart';
 import 'package:evently/providers/app_events_provider.dart';
 import 'package:evently/utils/app_images.dart';
@@ -88,6 +90,140 @@ void main() {
 
       provider.setCategory(EventCategory.all);
       expect(provider.filteredEvents.length, provider.events.length);
+    });
+  });
+
+  group('AppEventsProvider Firestore Mode Tests', () {
+    late FakeFirebaseFirestore fakeFirestore;
+    late FirestoreService firestoreService;
+    const testUid = 'user_cloud_999';
+
+    setUp(() {
+      fakeFirestore = FakeFirebaseFirestore();
+      firestoreService = FirestoreService(firestore: fakeFirestore);
+    });
+
+    test('loadEvents seeds initial events into Firestore when collection is empty', () async {
+      final provider = AppEventsProvider(
+        firestoreService: firestoreService,
+        uid: testUid,
+      );
+      await provider.loadEvents();
+
+      expect(provider.events, isNotEmpty);
+      final cloudEvents = await firestoreService.getEvents(testUid);
+      expect(cloudEvents.length, provider.events.length);
+    });
+
+    test('createEvent adds event to Firestore and updates in-memory list', () async {
+      final provider = AppEventsProvider(
+        firestoreService: firestoreService,
+        uid: testUid,
+      );
+      await provider.loadEvents();
+
+      final newEvent = EventModel(
+        id: 'cloud_new_1',
+        title: 'Cloud Marathon',
+        description: 'Running event in Cairo.',
+        category: EventCategory.sport,
+        dateTime: DateTime.now(),
+        location: 'Zamalek',
+        imagePath: AppImages.sportBanner,
+      );
+
+      final success = await provider.createEvent(newEvent);
+      expect(success, isTrue);
+      expect(provider.getEventById('cloud_new_1'), equals(newEvent));
+
+      final cloudDoc = await fakeFirestore
+          .collection('users')
+          .doc(testUid)
+          .collection('events')
+          .doc('cloud_new_1')
+          .get();
+      expect(cloudDoc.exists, isTrue);
+    });
+
+    test('updateEvent updates event in Firestore', () async {
+      final provider = AppEventsProvider(
+        firestoreService: firestoreService,
+        uid: testUid,
+      );
+      await provider.loadEvents();
+
+      final first = provider.events.first;
+      final updated = first.copyWith(title: 'Updated in Cloud');
+
+      final success = await provider.updateEvent(updated);
+      expect(success, isTrue);
+      expect(provider.getEventById(first.id)?.title, 'Updated in Cloud');
+
+      final cloudDoc = await fakeFirestore
+          .collection('users')
+          .doc(testUid)
+          .collection('events')
+          .doc(first.id)
+          .get();
+      expect(cloudDoc.data()?['title'], 'Updated in Cloud');
+    });
+
+    test('deleteEvent removes event from Firestore', () async {
+      final provider = AppEventsProvider(
+        firestoreService: firestoreService,
+        uid: testUid,
+      );
+      await provider.loadEvents();
+
+      final firstId = provider.events.first.id;
+      final success = await provider.deleteEvent(firstId);
+      expect(success, isTrue);
+      expect(provider.getEventById(firstId), isNull);
+
+      final cloudDoc = await fakeFirestore
+          .collection('users')
+          .doc(testUid)
+          .collection('events')
+          .doc(firstId)
+          .get();
+      expect(cloudDoc.exists, isFalse);
+    });
+
+    test('toggleFavorite updates isFavorite in Firestore', () async {
+      final provider = AppEventsProvider(
+        firestoreService: firestoreService,
+        uid: testUid,
+      );
+      await provider.loadEvents();
+
+      final first = provider.events.first;
+      final originalFav = first.isFavorite;
+
+      await provider.toggleFavorite(first.id);
+      expect(provider.getEventById(first.id)?.isFavorite, !originalFav);
+
+      final cloudDoc = await fakeFirestore
+          .collection('users')
+          .doc(testUid)
+          .collection('events')
+          .doc(first.id)
+          .get();
+      expect(cloudDoc.data()?['isFavorite'], !originalFav);
+    });
+
+    test('updateUid changes active user and reloads events', () async {
+      final provider = AppEventsProvider(
+        firestoreService: firestoreService,
+        uid: testUid,
+      );
+      await provider.loadEvents();
+      expect(provider.events, isNotEmpty);
+
+      // Switch to different user
+      provider.updateUid('different_user_empty');
+      await Future.delayed(const Duration(milliseconds: 20));
+      expect(provider.events, isNotEmpty);
+      expect(provider.currentUid, 'different_user_empty');
     });
   });
 }

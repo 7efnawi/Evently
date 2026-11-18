@@ -1,11 +1,19 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/services/firestore_service.dart';
 import '../models/event_model.dart';
 import '../utils/app_images.dart';
 
 class AppEventsProvider extends ChangeNotifier {
   static const String _storageKey = 'evently_stored_events';
+
+  final FirestoreService _firestoreService;
+  final bool _hasCustomService;
+  String? _uid;
+  StreamSubscription<List<EventModel>>? _eventsSubscription;
 
   List<EventModel> _events = [];
   EventCategory _selectedCategory = EventCategory.all;
@@ -14,6 +22,7 @@ class AppEventsProvider extends ChangeNotifier {
   List<EventModel> get events => List.unmodifiable(_events);
   EventCategory get selectedCategory => _selectedCategory;
   bool get isLoading => _isLoading;
+  String? get currentUid => _uid;
 
   List<EventModel> get filteredEvents {
     if (_selectedCategory == EventCategory.all) {
@@ -30,14 +39,72 @@ class AppEventsProvider extends ChangeNotifier {
     );
   }
 
-  AppEventsProvider() {
+  bool get _isFirebaseConfigured {
+    try {
+      return Firebase.apps.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  bool get _shouldUseFirestore =>
+      (_hasCustomService || _isFirebaseConfigured) && (_uid != null && _uid!.isNotEmpty);
+
+  AppEventsProvider({
+    FirestoreService? firestoreService,
+    String? uid,
+  })  : _firestoreService = firestoreService ?? FirestoreService(),
+        _hasCustomService = firestoreService != null,
+        _uid = uid {
     loadEvents();
+  }
+
+  void updateUid(String? newUid) {
+    if (_uid != newUid) {
+      _uid = newUid;
+      _eventsSubscription?.cancel();
+      _eventsSubscription = null;
+      loadEvents();
+    }
   }
 
   Future<void> loadEvents() async {
     _isLoading = true;
     notifyListeners();
 
+    try {
+      if (_shouldUseFirestore) {
+        final seeds = _generateInitialSeedEvents();
+        await _firestoreService.seedInitialEventsIfEmpty(_uid!, seeds);
+
+        _eventsSubscription?.cancel();
+        _eventsSubscription = _firestoreService.streamEvents(_uid!).listen(
+          (cloudEvents) {
+            _events = cloudEvents;
+            _isLoading = false;
+            notifyListeners();
+          },
+          onError: (_) {
+            _loadLocalFallback();
+          },
+        );
+
+        final initial = await _firestoreService.getEvents(_uid!);
+        if (initial.isNotEmpty) {
+          _events = initial;
+        }
+      } else {
+        await _loadLocalFallback();
+      }
+    } catch (_) {
+      await _loadLocalFallback();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _loadLocalFallback() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final storedString = prefs.getString(_storageKey);
@@ -53,9 +120,6 @@ class AppEventsProvider extends ChangeNotifier {
       }
     } catch (_) {
       _events = _generateInitialSeedEvents();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
     }
   }
 
@@ -67,6 +131,19 @@ class AppEventsProvider extends ChangeNotifier {
   }
 
   Future<bool> createEvent(EventModel event) async {
+    if (_shouldUseFirestore) {
+      try {
+        await _firestoreService.createEvent(_uid!, event);
+        if (!_events.any((e) => e.id == event.id)) {
+          _events.insert(0, event);
+          notifyListeners();
+        }
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
     _events.insert(0, event);
     await _saveToStorage();
     notifyListeners();
@@ -74,6 +151,20 @@ class AppEventsProvider extends ChangeNotifier {
   }
 
   Future<bool> updateEvent(EventModel updatedEvent) async {
+    if (_shouldUseFirestore) {
+      try {
+        await _firestoreService.updateEvent(_uid!, updatedEvent);
+        final index = _events.indexWhere((e) => e.id == updatedEvent.id);
+        if (index != -1) {
+          _events[index] = updatedEvent;
+          notifyListeners();
+        }
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
     final index = _events.indexWhere((e) => e.id == updatedEvent.id);
     if (index != -1) {
       _events[index] = updatedEvent;
@@ -85,6 +176,17 @@ class AppEventsProvider extends ChangeNotifier {
   }
 
   Future<bool> deleteEvent(String eventId) async {
+    if (_shouldUseFirestore) {
+      try {
+        await _firestoreService.deleteEvent(_uid!, eventId);
+        _events.removeWhere((e) => e.id == eventId);
+        notifyListeners();
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
     final index = _events.indexWhere((e) => e.id == eventId);
     if (index != -1) {
       _events.removeAt(index);
@@ -99,9 +201,17 @@ class AppEventsProvider extends ChangeNotifier {
     final index = _events.indexWhere((e) => e.id == eventId);
     if (index != -1) {
       final current = _events[index];
-      _events[index] = current.copyWith(isFavorite: !current.isFavorite);
-      await _saveToStorage();
+      final newFavorite = !current.isFavorite;
+      _events[index] = current.copyWith(isFavorite: newFavorite);
       notifyListeners();
+
+      if (_shouldUseFirestore) {
+        try {
+          await _firestoreService.toggleFavorite(_uid!, eventId, newFavorite);
+        } catch (_) {}
+      } else {
+        await _saveToStorage();
+      }
     }
   }
 
@@ -114,9 +224,17 @@ class AppEventsProvider extends ChangeNotifier {
   }
 
   Future<void> _saveToStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final encoded = jsonEncode(_events.map((e) => e.toMap()).toList());
-    await prefs.setString(_storageKey, encoded);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final encoded = jsonEncode(_events.map((e) => e.toMap()).toList());
+      await prefs.setString(_storageKey, encoded);
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    _eventsSubscription?.cancel();
+    super.dispose();
   }
 
   List<EventModel> _generateInitialSeedEvents() {

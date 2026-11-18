@@ -67,5 +67,52 @@ void main() {
       expect(EventCategory.meeting.iconPath, AppImages.icCalendar);
       expect(EventCategory.meeting.bannerPath, AppImages.meetingBanner);
     });
+
+    test('EventModel.fromMap parses Timestamp-like object gracefully', () {
+      final expectedDate = DateTime(2026, 12, 25, 10, 0);
+      final map = {
+        'id': 'cloud_1',
+        'title': 'Christmas Celebration',
+        'description': 'Gathering with family',
+        'category': 'birthday',
+        'dateTime': _FakeTimestamp(expectedDate),
+        'location': 'Cairo, Egypt',
+        'imagePath': 'assets/images/birthday_banner.png',
+        'isFavorite': true,
+      };
+
+      final event = EventModel.fromMap(map);
+      expect(event.id, 'cloud_1');
+      expect(event.dateTime, expectedDate);
+      expect(event.category, EventCategory.birthday);
+      expect(event.isFavorite, isTrue);
+    });
+
+    test('EventModel.toFirestoreMap serializes fields correctly', () {
+      final date = DateTime(2026, 11, 20, 18, 30);
+      final event = EventModel(
+        id: 'event_10',
+        title: 'Clean Architecture Workshop',
+        description: 'Learn TDD and Clean Architecture.',
+        category: EventCategory.meeting,
+        dateTime: date,
+        location: 'Online',
+        imagePath: 'assets/images/meeting_banner.png',
+        isFavorite: false,
+      );
+
+      final map = event.toFirestoreMap();
+      expect(map['id'], 'event_10');
+      expect(map['title'], 'Clean Architecture Workshop');
+      expect(map['category'], 'meeting');
+      expect(map['dateTime'], date.toIso8601String());
+      expect(map['isFavorite'], isFalse);
+    });
   });
+}
+
+class _FakeTimestamp {
+  final DateTime _date;
+  _FakeTimestamp(this._date);
+  DateTime toDate() => _date;
 }

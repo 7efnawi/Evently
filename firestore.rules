@@ -1,0 +1,136 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: /users/{userId}
+// Document ID: {userId} (matches Firebase Auth UID)
+// Fields:
+//   - id: string (optional, matches userId if present)
+//   - name: string (optional, 1..100 chars)
+//   - email: string (optional, valid email format, max 100 chars)
+//   - avatarUrl: string or null (optional, max 500 chars)
+//   - createdAt: timestamp (optional)
+//   - updatedAt: timestamp (optional)
+//
+// Sub-collection: /users/{userId}/events/{eventId}
+// Document ID: {eventId}
+// Fields:
+//   - id: string (optional, matches eventId, max 100 chars, immutable)
+//   - title: string (required, 1..150 chars)
+//   - description: string (required, 0..2000 chars)
+//   - category: string (required, 1..50 chars)
+//   - dateTime: timestamp or string (required, Firestore timestamp or ISO 8601 string)
+//   - location: string (required, 0..200 chars)
+//   - imagePath: string (optional, max 500 chars)
+//   - isFavorite: bool (required)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the request is from an authenticated user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the authenticated user owns the target resource path
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Validate that required fields exist in the document data
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    // Validate that only allowed fields exist in the document data
+    function hasOnlyAllowedFields(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    // Validate email format
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // Validate date/time field: accepts either Firestore timestamp or ISO 8601 string
+    function isValidDateTime(val) {
+      return (val is timestamp) ||
+        (val is string && val.size() >= 10 && val.size() <= 50);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    // Validate user profile document integrity
+    function isValidUser(data, userId) {
+      return hasOnlyAllowedFields(data, ['id', 'name', 'email', 'avatarUrl', 'createdAt', 'updatedAt']) &&
+        (!('id' in data) || (data.id is string && data.id == userId)) &&
+        (!('name' in data) || (data.name is string && data.name.size() > 0 && data.name.size() <= 100)) &&
+        (!('email' in data) || (data.email is string && data.email.size() <= 100 && isValidEmail(data.email))) &&
+        (!('avatarUrl' in data) || data.avatarUrl == null || (data.avatarUrl is string && data.avatarUrl.size() <= 500)) &&
+        (!('createdAt' in data) || data.createdAt is timestamp) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    // Ensure user document ID is immutable on update
+    function uidNotModified(userId) {
+      return (!('id' in request.resource.data) || request.resource.data.id == userId) &&
+        (!('id' in resource.data) || (('id' in request.resource.data) && request.resource.data.id == resource.data.id));
+    }
+
+    // Validate event document integrity (required fields, types, and size constraints)
+    function isValidEvent(data, eventId) {
+      return hasRequiredFields(data, ['title', 'description', 'category', 'dateTime', 'location', 'isFavorite']) &&
+        hasOnlyAllowedFields(data, ['id', 'title', 'description', 'category', 'dateTime', 'location', 'imagePath', 'isFavorite']) &&
+        data.title is string && data.title.size() > 0 && data.title.size() <= 150 &&
+        data.description is string && data.description.size() <= 2000 &&
+        data.category is string && data.category.size() > 0 && data.category.size() <= 50 &&
+        isValidDateTime(data.dateTime) &&
+        data.location is string && data.location.size() <= 200 &&
+        data.isFavorite is bool &&
+        (!('id' in data) || (data.id is string && (data.id == eventId || data.id.size() <= 100))) &&
+        (!('imagePath' in data) || (data.imagePath is string && data.imagePath.size() <= 500));
+    }
+
+    // Ensure event document ID is immutable on update
+    function isEventImmutableUnchanged() {
+      return !('id' in resource.data) ||
+        (('id' in request.resource.data) && request.resource.data.id == resource.data.id);
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // User profile documents: strictly accessible by the account owner
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data, userId);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data, userId) && uidNotModified(userId);
+      allow delete: if isOwner(userId);
+
+      // User's events subcollection: strictly accessible by the owner
+      match /events/{eventId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidEvent(request.resource.data, eventId);
+        allow update: if isOwner(userId) && isValidEvent(request.resource.data, eventId) && isEventImmutableUnchanged();
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // Default deny for all other collections and documents
+    match /{document=**} {
+      allow read, write: false;
+    }
+  }
+}
